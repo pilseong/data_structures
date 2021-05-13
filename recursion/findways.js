@@ -1,10 +1,9 @@
 const readlineSync = require('readline-sync');
-
+let global = 0;
 
 function findways(cur, target) {
-  
+  global++;
   if (cur === target) {
-    console.log(cur, target);
     return 1;
   }
   if (cur > target) return 0;
@@ -16,3 +15,4 @@ function findways(cur, target) {
 let steps = readlineSync.question("How many steps: ");
 const answer = findways(0, +steps);
 console.log(answer);
+console.log(global)
