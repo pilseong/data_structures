@@ -82,6 +82,12 @@ class Stack {
     }
   }
 
+  peek() {
+    if (this.head !== null)
+      return this.head.data;
+    return null;
+  }
+
   isEmpty() {
     return this.size === 0 ? true : false;
   }
@@ -186,14 +192,14 @@ class BinaryTree {
 
     while (cur !== null || !stack.isEmpty()) {
       if (cur !== null) {
-        stack.push({cur, order: 1});
+        stack.push({ cur, order: 1 });
         cur = cur.left;
       } else {
         node = stack.pop();
         cur = node.cur;
 
         if (node.order === 1) {
-          stack.push({cur, order: 2});
+          stack.push({ cur, order: 2 });
           cur = cur.right;
         } else if (node.order === 2) {
           console.log(cur.data);
@@ -255,30 +261,135 @@ class BinarySearchTree {
     return leftHeight > rightHeight ? leftHeight + 1 : rightHeight + 1;
   }
 
-  delete(node, key) {
+  travsersePreorder(node) {
     if (node === null) return;
 
-    if (node.data === key) {
+    console.log(node.data);
+    this.travsersePreorder(node.left);
+    this.travsersePreorder(node.right);
+  }
 
-    } else if (node.data > key) {
-      this.delete(node.left);
+  getInPost(node) {
+    let cur = node;
+
+    while (cur !== null && cur.left !== null) {
+      cur = cur.left;
+    }
+
+    return cur;
+  }
+
+  getInPre(node) {
+    let cur = node;
+
+    while (cur !== null && cur.right !== null) {
+      cur = cur.right;
+    }
+
+    return cur;
+  }
+
+  delete(node, key) {
+    if (node === null) return null;
+
+    if (node.data === key && node.left === null && node.right === null) {
+      if (node === this.root) {
+        this.root = null;
+      }
+      node = null;
+      return null;
+    }
+
+    if (node.data > key) {
+      node.left = this.delete(node.left, key);
     } else if (node.data < key) {
-      this.delete(node.right);
+      node.right = this.delete(node.right, key);
+    } else {
+      // pick up the longer side node
+      if (this.getHeight(node.left) > this.getHeight(node.right)) {
+        // console.log(`left ${node}, ${key}`);
+        const pre = this.getInPre(node.left);
+        node.data = pre.data;
+        node.left = this.delete(node.left, pre.data);
+      } else {
+        // console.log(`right ${JSON.stringify(node)}, ${key}`);
+        const post = this.getInPost(node.right);
+        node.data = post.data;
+        // console.log(`post ${JSON.stringify(post)}, ${key}`);
+        node.right = this.delete(node.right, post.data);
+      }
+    }
+    return node;
+  }
+
+  // create BST only with preorder array
+  // myBST.createBSTWithPreorder([20, 10, 5, 15, 30, 35]);
+  createBSTWithPreorder(arr) {
+    const stack = new Stack();
+
+    // the first node is root
+    this.root = new TreeNode(arr[0]);
+    let cur = this.root;
+    let index = 1;
+
+    // from 1 to the last value in the array
+    while (index < arr.length) {
+      // if the new value is less than the current node, 
+      // then make a new node to the left of current and push current node to the stack.
+      // and change the current position to the newly created node
+      // the process finished, so the index has to be increased
+      if (arr[index] < cur.data) {
+        cur.left = new TreeNode(arr[index++]);
+        stack.push(cur);
+        cur = cur.left;
+      }
+      // if the new value is larger than current node,
+      // then compare this node with the value of the parent node,
+      else {
+        // if the value is less than parent, then make a new node and put it to the left of current node.
+        // if there is no parent in stack, then it regards as infinity
+        // and change the position to the newly created node
+        // the process finished, so the index has to be increased.
+        const top = stack.peek();
+        if (top === null || arr[index] < top.data) {
+          cur.right = new TreeNode(arr[index++]);
+          cur = cur.right;
+        // if the value is larger than parent node, 
+        // then pop the parent from the stack and change the position to the parent node.
+        // then compare the new value with the parent of the parent.
+        } else {
+          cur = stack.pop();
+        }
+      }
     }
   }
 }
 
 const myBST = new BinarySearchTree();
-myBST.root = myBST.insert(myBST.root, 20);
-myBST.insert(myBST.root, 10);
-myBST.insert(myBST.root, 30);
-myBST.insert(myBST.root, 15);
-myBST.insert(myBST.root, 5);
-myBST.insert(myBST.root, 35);
-
+myBST.createBSTWithPreorder([20, 10, 5, 15, 30, 35]);
 console.log(JSON.stringify(myBST));
-console.log(myBST.search(myBST.root, 11));
-console.log(myBST.getHeight(myBST.root));
+
+// myBST.root = myBST.insert(myBST.root, 20);
+// myBST.insert(myBST.root, 10);
+// myBST.insert(myBST.root, 30);
+// myBST.insert(myBST.root, 15);
+// myBST.insert(myBST.root, 5);
+// myBST.insert(myBST.root, 35);
+
+// myBST.travsersePreorder(myBST.root);
+
+
+// console.log(JSON.stringify(myBST));
+
+// myBST.delete(myBST.root, 6);
+// myBST.delete(myBST.root, 20);
+// myBST.delete(myBST.root, 30);
+// myBST.delete(myBST.root, 10);
+// console.log("\n\n")
+// console.log(JSON.stringify(myBST));
+
+// console.log(myBST.search(myBST.root, 11));
+// console.log(myBST.getHeight(myBST.root));
 
 
 // const myTree = new BinaryTree();
