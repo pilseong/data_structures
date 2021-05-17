@@ -216,28 +216,17 @@ class BinaryTree {
 class TreeNode {
   constructor(data) {
     this.data = data;
+    this.height = 1;
     this.left = null;
     this.right = null;
   }
 }
 
-
+// Binary Search Tree with Auto-balancing
+// AVL Tree
 class BinarySearchTree {
   constructor() {
     this.root = null;
-  }
-
-  insert(node, data) {
-    if (node === null) {
-      return new TreeNode(data);
-    }
-
-    if (data > node.data) {
-      node.right = this.insert(node.right, data);
-    } else {
-      node.left = this.insert(node.left, data);
-    }
-    return node;
   }
 
   search(node, key) {
@@ -252,6 +241,92 @@ class BinarySearchTree {
     }
   }
 
+  insert(node, data) {
+    if (node === null) {
+      return new TreeNode(data);
+    }
+
+    if (data > node.data) {
+      node.right = this.insert(node.right, data);
+    } else {
+      node.left = this.insert(node.left, data);
+    }
+
+    node.height = this.getHeighWhenCreation(node);
+    console.log(`Height: ${node.height} and input is ${data}`)
+
+      //     *
+      //   *   
+      // *    *
+      //    * 
+    // to balance Binary Search Tree, balance factor is necessary
+    // After the ratation, the node connected to parent has to change
+    if (this.getBalanceFactor(node) === 2 && node.left !== null && this.getBalanceFactor(node.left) === 1) {
+      node = this.LLRotation(node);
+    } else if (this.getBalanceFactor(node) === 2 && node.left !== null && this.getBalanceFactor(node.left) === -1) {
+      node = this.LRRotation(node);
+    } else if (this.getBalanceFactor(node) === -2 && node.right !== null && this.getBalanceFactor(node.right) === -1)  {
+      node = this.RRRotation(node);
+    } else if (this.getBalanceFactor(node) === -2 && node.right !== null && this.getBalanceFactor(node.right) === 1) {
+      this.RLRotation(node);
+    }
+    return node;
+  }
+
+  getBalanceFactor(node) {
+    const leftHeight = node.left !== null ? node.left.height : 0;
+    const rightHeight = node.right !== null ? node.right.height : 0;
+
+    var gap = leftHeight - rightHeight
+    console.log(`gap : ${gap}`)
+    return gap;
+  }
+
+  LLRotation(node) {
+    console.log('LLR')
+    let p = node;
+    let pl = node.left;
+    p.left = pl.right;
+    pl.right = p;
+
+    // we need to recalculate the node with the balance factor with 2
+    p.height = this.getHeighWhenCreation(p);
+    
+    return pl;
+  }
+
+  LRRotation(node) {
+    console.log('LRR')
+  }
+
+  RRRotation(node) {
+    console.log('RRR')
+    let p = node;
+    let pr = node.right;
+    p.right = pr.left;
+    pr.left = p;
+
+    // we need to recalculate the node with the balance factor with 2
+    p.head = this.getHeighWhenCreation(p);
+    return pr;
+  }
+
+  RLRotation(node) {
+    console.log('RLE')
+  }
+
+  // get the height from the children and plus one
+  getHeighWhenCreation(node) {
+    
+    const leftHeight = node.left !== null ? node.left.height : 0;
+    const rightHeight = node.right !== null ? node.right.height : 0;
+
+    node.height = leftHeight > rightHeight ? leftHeight : rightHeight;
+
+    return node.height + 1;
+  }
+
+  // get the height in any position
   getHeight(node) {
     if (node === null) return 0;
 
@@ -290,8 +365,10 @@ class BinarySearchTree {
   }
 
   delete(node, key) {
+    // end conditin
     if (node === null) return null;
 
+    // deletion phase
     if (node.data === key && node.left === null && node.right === null) {
       if (node === this.root) {
         this.root = null;
@@ -300,6 +377,7 @@ class BinarySearchTree {
       return null;
     }
 
+    // searching phase
     if (node.data > key) {
       node.left = this.delete(node.left, key);
     } else if (node.data < key) {
@@ -307,15 +385,12 @@ class BinarySearchTree {
     } else {
       // pick up the longer side node
       if (this.getHeight(node.left) > this.getHeight(node.right)) {
-        // console.log(`left ${node}, ${key}`);
         const pre = this.getInPre(node.left);
         node.data = pre.data;
         node.left = this.delete(node.left, pre.data);
       } else {
-        // console.log(`right ${JSON.stringify(node)}, ${key}`);
         const post = this.getInPost(node.right);
         node.data = post.data;
-        // console.log(`post ${JSON.stringify(post)}, ${key}`);
         node.right = this.delete(node.right, post.data);
       }
     }
@@ -366,20 +441,23 @@ class BinarySearchTree {
 }
 
 const myBST = new BinarySearchTree();
-myBST.createBSTWithPreorder([20, 10, 5, 15, 30, 35]);
-console.log(JSON.stringify(myBST));
-
-// myBST.root = myBST.insert(myBST.root, 20);
-// myBST.insert(myBST.root, 10);
-// myBST.insert(myBST.root, 30);
-// myBST.insert(myBST.root, 15);
-// myBST.insert(myBST.root, 5);
-// myBST.insert(myBST.root, 35);
-
-// myBST.travsersePreorder(myBST.root);
-
-
+// myBST.createBSTWithPreorder([20, 10, 5, 15, 30, 35]);
 // console.log(JSON.stringify(myBST));
+
+myBST.root = myBST.insert(myBST.root, 20);
+myBST.insert(myBST.root, 10);
+myBST.insert(myBST.root, 30);
+myBST.insert(myBST.root, 15);
+myBST.insert(myBST.root, 5);
+myBST.insert(myBST.root, 35);
+myBST.insert(myBST.root, 3);
+myBST.insert(myBST.root, 1);
+myBST.insert(myBST.root, 40);
+
+myBST.travsersePreorder(myBST.root);
+
+
+console.log(JSON.stringify(myBST));
 
 // myBST.delete(myBST.root, 6);
 // myBST.delete(myBST.root, 20);
