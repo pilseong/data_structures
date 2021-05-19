@@ -268,7 +268,7 @@ class BinarySearchTree {
     } else if (this.getBalanceFactor(node) === -2 && node.right !== null && this.getBalanceFactor(node.right) === -1)  {
       node = this.RRRotation(node);
     } else if (this.getBalanceFactor(node) === -2 && node.right !== null && this.getBalanceFactor(node.right) === 1) {
-      this.RLRotation(node);
+      node = this.RLRotation(node);
     }
     return node;
   }
@@ -291,12 +291,27 @@ class BinarySearchTree {
 
     // we need to recalculate the node with the balance factor with 2
     p.height = this.getHeighWhenCreation(p);
+    pl.height = this.getHeighWhenCreation(pl)
     
     return pl;
   }
 
   LRRotation(node) {
     console.log('LRR')
+    let p = node;
+    let pl = p.left;
+    let plr = pl.right;
+    
+    p.left = plr.right;
+    pl.right = plr.left;
+    plr.right = p;
+    plr.left = pl;
+
+    p.height = this.getHeighWhenCreation(p);
+    pl.height = this.getHeighWhenCreation(pl);
+    plr.height = this.getHeighWhenCreation(plr);
+
+    return plr;    
   }
 
   RRRotation(node) {
@@ -307,12 +322,27 @@ class BinarySearchTree {
     pr.left = p;
 
     // we need to recalculate the node with the balance factor with 2
-    p.head = this.getHeighWhenCreation(p);
+    p.height = this.getHeighWhenCreation(p);
+    pr.height = this.getHeighWhenCreation(pr);
     return pr;
   }
 
   RLRotation(node) {
-    console.log('RLE')
+    console.log('RLR')
+    let p = node;
+    let pr = p.right;
+    let prl =  pr.left;
+
+    p.right = prl.left;
+    pr.left = prl.right;
+    prl.left = p;
+    prl.right = pr;
+
+    p.height = this.getHeighWhenCreation(p);
+    pr.height = this.getHeighWhenCreation(pr);
+    prl.height =this.getHeighWhenCreation(prl);
+
+    return prl;
   }
 
   // get the height from the children and plus one
@@ -453,6 +483,10 @@ myBST.insert(myBST.root, 35);
 myBST.insert(myBST.root, 3);
 myBST.insert(myBST.root, 1);
 myBST.insert(myBST.root, 40);
+myBST.insert(myBST.root, 37);
+myBST.insert(myBST.root, 7);
+myBST.insert(myBST.root, 17);
+myBST.insert(myBST.root, 16);
 
 myBST.travsersePreorder(myBST.root);
 
